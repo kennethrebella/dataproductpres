@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>The Giving History Tool</title>
+  <meta charset="utf-8">
+  <meta name="description" content="The Giving History Tool">
+  <meta name="author" content="Kenneth Rebella">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="./assets/css/ribbons.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>The Giving History Tool</h1>
+    <h2>Making Giving History Reports Easy(er)</h2>
+    <p>Kenneth Rebella<br/></p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>What is it?</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>When compiling federal giving history reports, it can take upwards of 20 minutes for a finance assistant to organize and calculate a donor&#39;s contributions.   </p>
+
+<p>This app takes care of that. After downloading a donor&#39;s federal giving history from the internet and saving it as a .csv, the Giving History tool does all the calculation for you in seconds. </p>
+
+<h2>Why do we need an App for this?</h2>
+
+<p>Excel doesn&#39;t easily have capability to do this, and most people don&#39;t know how to use R. This app is easily accessible, easy to use, and fast!  </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>How does it work?</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>It runs some pretty straight forward R code, which pulls the needed information, sums the contributions by recipient and year, and finally orders the information in descending order by year and then condtribution level.  </p>
+
+<pre><code class="r">data &lt;- read.csv(inFile$datapath, header=input$header, sep=input$sep, 
+                                 quote=input$quote)
+                candidate &lt;- as.character(data$recipient_name)
+                date &lt;- as.character(data$date)
+                date &lt;- as.Date(date, format= &quot;%m/%d/%y&quot;)
+                year &lt;- (as.POSIXlt(date)$year + 1900)
+                amount &lt;- data$amount
+                report &lt;- data.frame(year, amount, candidate)
+                years &lt;- unique(year)
+                d &lt;- data.frame()
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>R Code Cont.</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">                for (i in 1:length(years)) {
+                        report2 &lt;- report[(report$year == years[i]),]
+                        test &lt;- aggregate(report2$amount, by= list(
+                                candidate = report2$candidate), FUN = sum)
+                        final &lt;- cbind(rep(years[i],nrow(test)), test)
+                        colnames(final)&lt;- c(&quot;Year&quot;, &quot;Candidate&quot;, &quot;Amount&quot;)
+                        d &lt;- rbind(d, final)
+                        d&lt;- data.frame(d$Year,d$Amount, d$Candidate)
+                        colnames(d) &lt;- c(&quot;Year&quot;, &quot;Amount&quot;, &quot;Candidate&quot;)
+                }
+                d[(order(d$Year, d$Amount, decreasing = TRUE)),]
+</code></pre>
+
+<p>This will return a data frame sorted by year and giving amount. There is the option for the user to then download the resulting information. </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>To Recap</h2>
+  </hgroup>
+  <article data-timings="">
+    <ol>
+<li>This app will save staff a lot of time </li>
+<li>It is very easy to use. </li>
+<li>It is accessible </li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='What is it?'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='How does it work?'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='R Code Cont.'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='To Recap'>
+         4
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>
